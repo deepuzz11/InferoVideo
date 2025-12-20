@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+yt-dlp
+openai-whisper
+ffmpeg-python
+spacy
+scikit-learn
+numpy
+pydantic
