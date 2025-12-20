@@ -1,6 +1,5 @@
 import subprocess
 import uuid
-from pathlib import Path
 from backend.app.core.config import VIDEO_DIR
 
 def ingest_video(url: str) -> dict:
