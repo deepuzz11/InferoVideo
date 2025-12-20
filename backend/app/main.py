@@ -1,14 +1,15 @@
 from fastapi import FastAPI
-from backend.app.api.routes import router
 from fastapi.staticfiles import StaticFiles
-
-app.mount("/data", StaticFiles(directory="data"), name="data")
+from backend.app.api.routes import router
 
 app = FastAPI(
     title="InferaVideo",
     description="Inference-driven video intelligence platform",
     version="0.1.0"
 )
+
+# ✅ mount AFTER app is created
+app.mount("/data", StaticFiles(directory="data"), name="data")
 
 @app.get("/")
 def health():
