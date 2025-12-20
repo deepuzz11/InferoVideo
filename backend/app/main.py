@@ -1,5 +1,8 @@
 from fastapi import FastAPI
 from backend.app.api.routes import router
+from fastapi.staticfiles import StaticFiles
+
+app.mount("/data", StaticFiles(directory="data"), name="data")
 
 app = FastAPI(
     title="InferaVideo",

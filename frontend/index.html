@@ -1,12 +1,31 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>InferaVideo</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <h1>InferaVideo</h1>
-  <input id="url" placeholder="YouTube URL"/>
-  <button onclick="process()">Process</button>
+
+  <h1>🎬 InferaVideo</h1>
+
+  <div class="controls">
+    <input id="jobId" placeholder="Job ID" />
+    <button onclick="loadVideo()">Load Video</button>
+  </div>
+
+  <video id="video" controls width="720"></video>
+
+  <h2>📑 Chapters</h2>
+  <ul id="chapters"></ul>
+
+  <h2>🔍 Search</h2>
+  <input id="query" placeholder="Search text" />
+  <button onclick="search()">Search</button>
+  <ul id="searchResults"></ul>
+
+  <h2>✨ Highlights</h2>
+  <ul id="highlights"></ul>
 
   <script src="app.js"></script>
 </body>
