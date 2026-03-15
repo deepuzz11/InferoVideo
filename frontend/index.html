@@ -1,75 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>InferaVideo</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-
-  <div class="app">
-
-    <!-- HEADER -->
-    <header class="header">
-      <div class="brand">
-        <span class="logo">🎬</span>
-        <div>
-          <h1>InferaVideo</h1>
-          <p>Inference-driven video intelligence</p>
-        </div>
-      </div>
-    </header>
-
-    <!-- JOB INPUT -->
-    <section class="card job-card">
-      <input id="jobId" placeholder="Enter Job ID" />
-      <button onclick="loadVideo()">Load Video</button>
-    </section>
-
-    <!-- VIDEO -->
-    <section class="card video-card">
-      <video id="video" controls></video>
-    </section>
-
-    <!-- MAIN LAYOUT -->
-    <section class="main">
-
-      <!-- CHAPTERS -->
-      <aside class="panel sidebar">
-        <h2>📑 Chapters</h2>
-        <ul id="chapters" class="list">
-          <li class="placeholder">Load a video to see chapters</li>
-        </ul>
-      </aside>
-
-      <!-- CONTENT -->
-      <section class="content">
-
-        <!-- SEARCH -->
-        <div class="panel">
-          <h2>🔍 Search</h2>
-          <div class="search-box">
-            <input id="query" placeholder="Search inside video…" />
-            <button onclick="search()">Search</button>
-          </div>
-          <ul id="searchResults" class="list">
-            <li class="placeholder">Search results will appear here</li>
-          </ul>
-        </div>
-
-        <!-- HIGHLIGHTS -->
-        <div class="panel">
-          <h2>✨ Highlights</h2>
-          <ul id="highlights" class="list">
-            <li class="placeholder">Highlights will appear here</li>
-          </ul>
-        </div>
-
-      </section>
-    </section>
-
-  </div>
-
-  <script src="app.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InferaVideo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

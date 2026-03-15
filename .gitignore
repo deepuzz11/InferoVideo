@@ -1,8 +1,26 @@
-venv/
+# Python
 __pycache__/
 *.pyc
+*.pyo
 .env
+venv/
+.venv/
+
+# Data (runtime artifacts)
 data/videos/*
-data/audio/*
 data/transcripts/*
-data/outputs/*
+data/chapters/*
+data/highlights/*
+data/jobs/*
+data/summaries/*
+!data/**/.gitkeep
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Misc
+.DS_Store
+*.egg-info/
+dist/
+build/
