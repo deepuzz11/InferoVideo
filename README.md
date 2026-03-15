@@ -205,25 +205,8 @@ inferavideo/
 ├── Makefile
 └── .env.example
 ```
-
----
-
-## Tech Decisions (for interviews)
-
-**Why FastAPI + BackgroundTasks instead of Celery?**  
-For a single-user local tool, BackgroundTasks provides the async job pattern without Redis/broker overhead. A production version would use Celery + Redis for multi-user parallelism.
-
-**Why TF-IDF by default instead of embeddings?**  
-Zero extra dependencies, instant on CPU. Embeddings (`sentence-transformers`) are opt-in for semantic queries where keyword overlap fails.
-
-**Why extractive summarisation by default?**  
-Extractive uses only sklearn/numpy (already required), runs in milliseconds, and is deterministic. Abstractive (`transformers`) produces better prose but requires ~500MB model download and GPU for reasonable speed.
-
-**Why JSON file store instead of SQLite/PostgreSQL?**  
-Zero-dependency persistence for a local tool. The `VideoJob.save/load` interface is an abstraction boundary — swapping to SQLite is a single-file change.
-
 ---
 
 ## License
 
-MIT © 2025
+MIT © 2026
