@@ -37,15 +37,14 @@ export default function ChaptersPanel({ onSeek }) {
       </div>
     )
   }
-
   return (
-    <div className="fade-in">
+    <div className="fade-in-up">
       {chapters.map((ch, i) => {
         const isActive = activeChapter?.start === ch.start
         return (
           <div
             key={i}
-            className={`chapter-item${isActive ? ' active' : ''}`}
+            className={`chapter-item glass stagger-${Math.min(5, i + 1)}${isActive ? ' active' : ''}`}
             onClick={() => onSeek?.(ch.start)}
           >
             <div className="chapter-title">{ch.title}</div>

@@ -11,6 +11,9 @@ export const searchJob      = (id, query, top_k=5, backend='tfidf') =>
 export const getChapters    = (id)  => api.get(`/jobs/${id}/chapters`)
 export const getHighlights  = (id)  => api.get(`/jobs/${id}/highlights`)
 export const getSummary     = (id)  => api.get(`/jobs/${id}/summary`)
+export const getInsights    = (id)  => api.get(`/jobs/${id}/insights`)
 export const healthCheck    = ()    => api.get('/health')
+
+export const exportSubtitlesUrl = (id, format) => `${BASE}/jobs/${id}/export/${format}`
 
 export default api

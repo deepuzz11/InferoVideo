@@ -61,6 +61,28 @@ def save_transcript(job_id: str, segments: list[dict], transcript_dir: Path) -> 
     return out
 
 
+def to_srt(segments: list[dict]) -> str:
+    from backend.app.utils.time import seconds_to_srt
+    lines = []
+    for i, seg in enumerate(segments, start=1):
+        start = seconds_to_srt(seg["start"])
+        end = seconds_to_srt(seg["end"])
+        text = seg["text"].strip()
+        lines.append(f"{i}\n{start} --> {end}\n{text}\n")
+    return "\n".join(lines)
+
+
+def to_vtt(segments: list[dict]) -> str:
+    from backend.app.utils.time import seconds_to_vtt
+    lines = ["WEBVTT\n"]
+    for seg in segments:
+        start = seconds_to_vtt(seg["start"])
+        end = seconds_to_vtt(seg["end"])
+        text = seg["text"].strip()
+        lines.append(f"{start} --> {end}\n{text}\n")
+    return "\n".join(lines)
+
+
 def load_transcript(path: Path) -> list[dict]:
     if not path.exists():
         raise FileNotFoundError(f"Transcript not found: {path}")

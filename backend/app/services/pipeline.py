@@ -13,7 +13,8 @@ from backend.app.core.segment import save_chapters, segment_chapters
 from backend.app.core.summarise import (
     load_summary, save_summary, summarise_chapters, summarise_transcript,
 )
-from backend.app.core.transcribe import TranscribeError, load_transcript, save_transcript, transcribe_video
+from backend.app.core.transcribe import TranscribeError, load_transcript, save_transcript, transcribe_video, to_srt, to_vtt
+from backend.app.core.insights import extract_insights, save_insights
 from backend.app.models.video_job import PipelineStage, StageStatus, VideoJob
 
 logger = logging.getLogger(__name__)
@@ -158,6 +159,24 @@ class PipelineService:
         finally:
             self._save(job)
 
+    def run_insights(self, job: VideoJob):
+        job.set_stage(PipelineStage.INSIGHTS, StageStatus.RUNNING)
+        self._save(job)
+        try:
+            if not job.transcript_path:
+                segments = []
+            else:
+                segments = load_transcript(Path(job.transcript_path))
+            insights = extract_insights(segments)
+            path = save_insights(job.job_id, insights, self.settings.insights_dir)
+            job.insights_path = str(path)
+            job.set_stage(PipelineStage.INSIGHTS, StageStatus.DONE)
+        except Exception as exc:
+            job.set_stage(PipelineStage.INSIGHTS, StageStatus.FAILED, str(exc))
+            raise
+        finally:
+            self._save(job)
+
     # ------------------------------------------------------------------ #
     # Full pipeline
     # ------------------------------------------------------------------ #
@@ -174,29 +193,28 @@ class PipelineService:
             # Stage 2: Transcribe (Sequential, bottleneck for following stages)
             await loop.run_in_executor(self._executor, self.run_transcribe, job)
 
-            # Stage 3: Parallel processing (Segment, Highlight)
-            # Summarise usually depends on segments for chapter summaries,
-            # so we run it after segments but parallel with highlights.
-
-            async def run_stage_in_executor(stage_func, *args):
-                return await loop.run_in_executor(self._executor, stage_func, *args)
-
-            # Run segment and highlight in parallel
-            segment_task = asyncio.create_task(run_stage_in_executor(self.run_segment, job))
-            highlight_task = asyncio.create_task(run_stage_in_executor(self.run_highlight, job))
-
-            await segment_task  # Wait for segment to finish before starting summary
-            summary_task = asyncio.create_task(run_stage_in_executor(self.run_summarise, job))
-
-            await asyncio.gather(highlight_task, summary_task)
+            # Stage 3: Sequential processing (Segment → Highlight → Summarise → Insights)
+            await loop.run_in_executor(self._executor, self.run_segment, job)
+            await loop.run_in_executor(self._executor, self.run_highlight, job)
+            await loop.run_in_executor(self._executor, self.run_summarise, job)
+            await loop.run_in_executor(self._executor, self.run_insights, job)
 
             logger.info("Pipeline complete: %s", job_id)
         except Exception as exc:
             logger.error("Pipeline failed for %s: %s", job_id, exc)
 
     # ------------------------------------------------------------------ #
-    # Search
+    # Search & Exports
     # ------------------------------------------------------------------ #
+
+    def get_subtitles(self, job_id: str, format: str = "srt") -> str:
+        job = self.get_job(job_id)
+        if not job.transcript_path:
+            raise ValueError("No transcript available")
+        segments = load_transcript(Path(job.transcript_path))
+        if format == "vtt":
+            return to_vtt(segments)
+        return to_srt(segments)
 
     def search(self, job_id: str, query: str, top_k: int = 5, backend: str = "tfidf") -> list[dict]:
         job = self.get_job(job_id)

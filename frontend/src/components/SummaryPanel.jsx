@@ -36,18 +36,16 @@ export default function SummaryPanel({ onSeek }) {
       </div>
     )
   }
-
   return (
-    <div className="fade-in">
+    <div className="fade-in-up">
       {/* Overall summary */}
-      <div style={{ marginBottom: 20 }}>
+      <div className="section stagger-1" style={{ marginBottom: 20 }}>
         <div className="label" style={{ marginBottom: 10 }}>Overall Summary</div>
         <div
+          className="glass"
           style={{
             padding: '16px 20px',
             borderRadius: 'var(--radius)',
-            background: 'var(--bg-2)',
-            border: '1px solid var(--border)',
             borderLeft: '3px solid var(--accent)',
           }}
         >
@@ -57,10 +55,10 @@ export default function SummaryPanel({ onSeek }) {
 
       {/* Per-chapter summaries */}
       {summary.chapters?.length > 0 && (
-        <div>
-          <div className="label" style={{ marginBottom: 12 }}>Chapter Summaries</div>
+        <div className="section stagger-2">
+          <div className="label" style={{ marginBottom: 16 }}>Detailed Breakdown</div>
           {summary.chapters.map((ch, i) => (
-            <div key={i} className="summary-chapter">
+            <div key={i} className={`summary-chapter fade-in-up stagger-${Math.min(5, i + 2)}`}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                 <div className="summary-chapter-title">{ch.title}</div>
                 <span

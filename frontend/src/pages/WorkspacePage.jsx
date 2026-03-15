@@ -8,6 +8,7 @@ import ChaptersPanel from '../components/ChaptersPanel'
 import SearchPanel from '../components/SearchPanel'
 import HighlightsPanel from '../components/HighlightsPanel'
 import SummaryPanel from '../components/SummaryPanel'
+import InsightsPanel from '../components/InsightsPanel'
 import { getJob } from '../services/api'
 
 const TABS = [
@@ -15,6 +16,7 @@ const TABS = [
   { id: 'search',     label: '🔍 Search' },
   { id: 'highlights', label: '✨ Highlights' },
   { id: 'summary',    label: '📝 Summary' },
+  { id: 'insights',   label: '💡 Insights' },
 ]
 
 export default function WorkspacePage() {
@@ -93,10 +95,11 @@ export default function WorkspacePage() {
               </div>
 
               <div style={{ minHeight: 200 }}>
-                {activeTab === 'chapters'   && <ChaptersPanel   onSeek={handleSeek} />}
-                {activeTab === 'search'     && <SearchPanel     onSeek={handleSeek} />}
-                {activeTab === 'highlights' && <HighlightsPanel />}
-                {activeTab === 'summary'    && <SummaryPanel    onSeek={handleSeek} />}
+                {activeTab === 'chapters'   && <div className="card-inner fade-in-up" key={activeTab}><ChaptersPanel   onSeek={handleSeek} /></div>}
+                {activeTab === 'search'     && <div className="card-inner fade-in-up" key={activeTab}><SearchPanel     onSeek={handleSeek} /></div>}
+                {activeTab === 'highlights' && <div className="card-inner fade-in-up" key={activeTab}><HighlightsPanel /></div>}
+                {activeTab === 'summary'    && <div className="card-inner fade-in-up" key={activeTab}><SummaryPanel    onSeek={handleSeek} /></div>}
+                {activeTab === 'insights'   && <div className="card-inner fade-in-up" key={activeTab}><InsightsPanel /></div>}
               </div>
             </div>
           </div>

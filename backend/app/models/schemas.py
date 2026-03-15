@@ -52,6 +52,7 @@ class JobResponse(BaseModel):
     segment_status: str
     highlight_status: str
     summarise_status: str
+    insights_status: str
     meta: JobMetaResponse
     error: Optional[str] = None
     error_stage: Optional[str] = None
@@ -69,6 +70,7 @@ class JobResponse(BaseModel):
             segment_status=job.segment_status.value,
             highlight_status=job.highlight_status.value,
             summarise_status=job.summarise_status.value,
+            insights_status=job.insights_status.value,
             meta=JobMetaResponse(**job.meta.model_dump()),
             error=job.error,
             error_stage=job.error_stage,
@@ -128,6 +130,18 @@ class SummaryResponse(BaseModel):
     job_id: str
     overall: str
     chapters: list[ChapterSummary]
+
+
+class InsightItem(BaseModel):
+    text: str
+    label: Optional[str] = None
+    score: Optional[float] = None
+
+
+class InsightsResponse(BaseModel):
+    job_id: str
+    entities: list[InsightItem]
+    keywords: list[InsightItem]
 
 
 class HealthResponse(BaseModel):

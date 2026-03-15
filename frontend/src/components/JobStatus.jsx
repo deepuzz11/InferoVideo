@@ -2,6 +2,7 @@ import React from 'react'
 import { useStore } from '../store'
 import { useFormatTime } from '../hooks/useJobPoller'
 import Loader from './Loader'
+import { exportSubtitlesUrl } from '../services/api'
 
 const STAGES = [
   { key: 'ingest',     label: 'INGEST' },
@@ -9,6 +10,7 @@ const STAGES = [
   { key: 'segment',    label: 'SEGMENT' },
   { key: 'highlight',  label: 'HIGHLIGHT' },
   { key: 'summarise',  label: 'SUMMARISE' },
+  { key: 'insights',   label: 'INSIGHTS' },
 ]
 
 function StagePill({ status, label, stageKey }) {
@@ -111,6 +113,27 @@ export default function JobStatus() {
                 <div className="label">Segments</div>
               </div>
             )}
+            
+            <div style={{ flex: 1 }} />
+            
+            <div style={{ display: 'flex', gap: 8, alignSelf: 'center' }}>
+              <a 
+                href={exportSubtitlesUrl(job.job_id, 'srt')} 
+                download 
+                className="btn btn-ghost btn-sm"
+                style={{ fontSize: 10, padding: '4px 10px' }}
+              >
+                📥 Download SRT
+              </a>
+              <a 
+                href={exportSubtitlesUrl(job.job_id, 'vtt')} 
+                download 
+                className="btn btn-ghost btn-sm"
+                style={{ fontSize: 10, padding: '4px 10px' }}
+              >
+                📥 Download VTT
+              </a>
+            </div>
           </div>
         )}
       </div>

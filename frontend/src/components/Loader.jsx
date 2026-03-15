@@ -55,6 +55,12 @@ export default function Loader({ stage, status }) {
             <div className="magnifier"></div>
           </div>
         )
+      case 'insights':
+        return (
+          <div className="loader-visual loader-insights">
+            <div className="bulb"></div>
+          </div>
+        )
       default:
         return <div className="spinner"></div>
     }

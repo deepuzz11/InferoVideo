@@ -41,17 +41,15 @@ export default function HighlightsPanel() {
       </div>
     )
   }
-
   return (
-    <div className="fade-in">
-      <div style={{ marginBottom: 10, fontSize: 12, color: 'var(--text-3)' }}>
-        {highlights.length} clip{highlights.length !== 1 ? 's' : ''} extracted · click to play
+    <div className="fade-in-up">
+      <div className="label stagger-1" style={{ marginBottom: 12 }}>
+        {highlights.length} clip{highlights.length !== 1 ? 's' : ''} extracted
       </div>
       {highlights.map((clip, i) => (
         <div
           key={i}
-          className="clip-item"
-          style={{ animationDelay: `${i * 0.05}s` }}
+          className={`clip-item glass fade-in-up stagger-${Math.min(5, i + 1)}`}
           onClick={() => playClip(clip.url)}
         >
           <div className="clip-thumb">

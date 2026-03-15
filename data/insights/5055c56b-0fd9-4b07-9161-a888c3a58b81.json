@@ -1,0 +1,45 @@
+{
+  "entities": [],
+  "keywords": [
+    {
+      "text": "really",
+      "score": 0.728
+    },
+    {
+      "text": "say",
+      "score": 0.707
+    },
+    {
+      "text": "pretty",
+      "score": 0.707
+    },
+    {
+      "text": "elephants",
+      "score": 0.707
+    },
+    {
+      "text": "alright",
+      "score": 0.707
+    },
+    {
+      "text": "cool",
+      "score": 0.485
+    },
+    {
+      "text": "thing",
+      "score": 0.243
+    },
+    {
+      "text": "long",
+      "score": 0.243
+    },
+    {
+      "text": "hunts",
+      "score": 0.243
+    },
+    {
+      "text": "guys",
+      "score": 0.243
+    }
+  ]
+}

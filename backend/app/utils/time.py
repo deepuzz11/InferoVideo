@@ -11,3 +11,7 @@ def seconds_to_vtt(seconds: float) -> str:
     h, r = divmod(total, 3600)
     m, s = divmod(r, 60)
     return f"{h:02d}:{m:02d}:{s:02d}.{ms:03d}"
+
+
+def seconds_to_srt(seconds: float) -> str:
+    return seconds_to_vtt(seconds).replace(".", ",")

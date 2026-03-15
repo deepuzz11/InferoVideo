@@ -68,10 +68,15 @@ class Settings(BaseSettings):
     def summary_dir(self) -> Path:
         return self.data_dir / "summaries"
 
+    @property
+    def insights_dir(self) -> Path:
+        return self.data_dir / "insights"
+
     def ensure_dirs(self):
         for d in [
             self.video_dir, self.transcript_dir, self.chapter_dir,
             self.highlight_dir, self.jobs_dir, self.summary_dir,
+            self.insights_dir,
         ]:
             d.mkdir(parents=True, exist_ok=True)
 

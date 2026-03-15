@@ -5,12 +5,13 @@ import logging
 from pathlib import Path
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
+from typing import Literal
 from backend.app.core.config import get_settings
 from backend.app.models.schemas import (
     ChapterItem, ChaptersResponse, ChapterSummary,
     HealthResponse, HighlightsResponse, ClipItem,
     JobResponse, ProcessRequest, SearchRequest, SearchResponse, SearchResult,
-    SummaryResponse,
+    SummaryResponse, InsightsResponse, InsightItem,
 )
 from backend.app.services.pipeline import PipelineService
 
@@ -161,6 +162,49 @@ def get_summary(job_id: str):
         overall=data["overall"],
         chapters=[ChapterSummary(**c) for c in data.get("chapters", [])],
     )
+
+
+# ---------------------------------------------------------------------------
+# Insights
+# ---------------------------------------------------------------------------
+
+@router.get("/jobs/{job_id}/insights", response_model=InsightsResponse, tags=["Insights"])
+def get_insights(job_id: str):
+    try:
+        job = _svc.get_job(job_id)
+    except FileNotFoundError:
+        raise HTTPException(404, "Job not found")
+
+    if job.insights_status != "done":
+        raise HTTPException(409, f"Insights not ready (status: {job.insights_status})")
+
+    from backend.app.core.insights import load_insights
+    data = load_insights(Path(job.insights_path))
+    return InsightsResponse(
+        job_id=job_id,
+        entities=[InsightItem(**e) for e in data.get("entities", [])],
+        keywords=[InsightItem(**k) for k in data.get("keywords", [])],
+    )
+
+
+# ---------------------------------------------------------------------------
+# Exports
+# ---------------------------------------------------------------------------
+
+@router.get("/jobs/{job_id}/export/{fmt}", tags=["Exports"])
+def export_subtitles(job_id: str, fmt: Literal["srt", "vtt"]):
+    try:
+        content = _svc.get_subtitles(job_id, fmt)
+        filename = f"subtitles_{job_id}.{fmt}"
+        from fastapi.responses import Response
+        media_type = "text/vtt" if fmt == "vtt" else "text/plain"
+        return Response(
+            content=content,
+            media_type=media_type,
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+    except Exception as exc:
+        raise HTTPException(400, str(exc))
 
 
 # ---------------------------------------------------------------------------

@@ -24,6 +24,7 @@ class PipelineStage(str, Enum):
     SEGMENT = "segment"
     HIGHLIGHT = "highlight"
     SUMMARISE = "summarise"
+    INSIGHTS = "insights"
 
 
 class JobMeta(BaseModel):
@@ -45,6 +46,7 @@ class VideoJob(BaseModel):
     segment_status: StageStatus = StageStatus.PENDING
     highlight_status: StageStatus = StageStatus.PENDING
     summarise_status: StageStatus = StageStatus.PENDING
+    insights_status: StageStatus = StageStatus.PENDING
 
     # Artifact paths
     video_path: Optional[str] = None
@@ -52,6 +54,7 @@ class VideoJob(BaseModel):
     chapter_path: Optional[str] = None
     highlight_dir: Optional[str] = None
     summary_path: Optional[str] = None
+    insights_path: Optional[str] = None
 
     # Rich metadata
     meta: JobMeta = Field(default_factory=JobMeta)
@@ -73,7 +76,8 @@ class VideoJob(BaseModel):
     def overall_status(self) -> str:
         statuses = [
             self.ingest_status, self.transcribe_status,
-            self.segment_status, self.highlight_status, self.summarise_status,
+            self.segment_status, self.highlight_status, 
+            self.summarise_status, self.insights_status,
         ]
         if any(s == StageStatus.FAILED for s in statuses):
             return "failed"
@@ -88,7 +92,8 @@ class VideoJob(BaseModel):
         weights = {StageStatus.DONE: 1, StageStatus.RUNNING: 0.5, StageStatus.SKIPPED: 1}
         stages = [
             self.ingest_status, self.transcribe_status,
-            self.segment_status, self.highlight_status, self.summarise_status,
+            self.segment_status, self.highlight_status, 
+            self.summarise_status, self.insights_status,
         ]
         earned = sum(weights.get(s, 0) for s in stages)
         return int((earned / len(stages)) * 100)
