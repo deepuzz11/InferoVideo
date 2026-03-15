@@ -65,39 +65,50 @@ def cut_clips(
     clips: list[dict[str, Any]],
     out_dir: Path,
     max_len: int = 60,
+    fast: bool = True,
 ) -> list[dict[str, Any]]:
+    from concurrent.futures import ThreadPoolExecutor
+
     out_dir.mkdir(parents=True, exist_ok=True)
     outputs = []
 
-    for i, clip in enumerate(clips, start=1):
+    def _cut_one(args):
+        i, clip = args
         start = clip["start"]
         duration = min(max_len, clip["end"] - start)
         out = out_dir / f"clip_{i:02d}.mp4"
 
-        cmd = [
-            "ffmpeg", "-y",
-            "-ss", str(start),
-            "-i", str(video_path),
-            "-t", str(duration),
-            "-c:v", "libx264", "-crf", "23", "-preset", "fast",
-            "-c:a", "aac", "-b:a", "128k",
-            "-movflags", "+faststart",
-            str(out),
-        ]
+        # -ss before -i is faster; -c copy is nearly instant but less precise
+        cmd = ["ffmpeg", "-y", "-ss", str(start)]
+        if fast:
+            cmd += ["-i", str(video_path), "-t", str(duration), "-c", "copy"]
+        else:
+            cmd += [
+                "-i", str(video_path),
+                "-t", str(duration),
+                "-c:v", "libx264", "-crf", "23", "-preset", "fast",
+                "-c:a", "aac", "-b:a", "128k",
+            ]
+        cmd += ["-movflags", "+faststart", str(out)]
 
-        logger.info("Cutting clip %d (%.1fs–%.1fs)", i, start, start + duration)
+        logger.info("Cutting clip %d (%.1fs–%.1fs) fast=%s", i, start, start + duration, fast)
         try:
             subprocess.run(cmd, check=True, capture_output=True, timeout=300)
+            return {
+                "clip_path": str(out),
+                "start": start,
+                "end": round(start + duration, 2),
+                "score": clip["score"],
+                "index": i,
+            }
         except subprocess.CalledProcessError as exc:
             logger.error("ffmpeg error clip %d: %s", i, exc.stderr.decode()[-400:])
-            continue
+            return None
 
-        outputs.append({
-            "clip_path": str(out),
-            "start": start,
-            "end": round(start + duration, 2),
-            "score": clip["score"],
-            "index": i,
-        })
+    # Parallelize FFmpeg calls (FFmpeg is often I/O bound or can use multiple cores)
+    # We use a small number of workers to avoid overloading the system
+    with ThreadPoolExecutor(max_workers=max(1, (len(clips) + 1) // 2)) as executor:
+        results = list(executor.map(_cut_one, enumerate(clips, start=1)))
 
+    outputs = [r for r in results if r is not None]
     return outputs

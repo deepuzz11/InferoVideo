@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { useStore } from '../store'
 import { getSummary } from '../services/api'
 import { useFormatTime } from '../hooks/useJobPoller'
+import Loader from './Loader'
 
 export default function SummaryPanel({ onSeek }) {
   const job = useStore(s => s.job)
@@ -19,10 +20,10 @@ export default function SummaryPanel({ onSeek }) {
   if (job?.summarise_status === 'running' || job?.summarise_status === 'pending') {
     return (
       <div className="empty">
-        <div className="dots" style={{ justifyContent: 'center', marginBottom: 8 }}>
-          <div className="dot"/><div className="dot"/><div className="dot"/>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
+          <Loader stage="summarise" status="running" />
         </div>
-        <div>Generating summary…</div>
+        <div style={{ fontSize: 13, color: 'var(--text-2)' }}>Generating summary…</div>
       </div>
     )
   }

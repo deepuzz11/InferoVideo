@@ -1,6 +1,7 @@
 import React from 'react'
 import { useStore } from '../store'
 import { useFormatTime } from '../hooks/useJobPoller'
+import Loader from './Loader'
 
 const STAGES = [
   { key: 'ingest',     label: 'INGEST' },
@@ -10,11 +11,13 @@ const STAGES = [
   { key: 'summarise',  label: 'SUMMARISE' },
 ]
 
-function StagePill({ status, label }) {
-  const icons = { pending: '○', running: '◉', done: '●', failed: '✗', skipped: '–' }
+function StagePill({ status, label, stageKey }) {
+  const icons = { pending: '○', running: <Loader stage={stageKey} status="running" />, done: '●', failed: '✗', skipped: '–' }
   return (
     <span className={`stage-pill ${status}`}>
-      <span>{icons[status] || '○'}</span>
+      <span style={{ display: 'inline-flex', verticalAlign: 'middle', marginRight: 4 }}>
+        {status === 'running' ? icons.running : icons[status] || '○'}
+      </span>
       {label}
     </span>
   )
@@ -51,7 +54,6 @@ export default function JobStatus() {
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, marginLeft: 12 }}>
-            {isProcessing && <div className="waveform">{[1,2,3,4,5,6].map(i => <div key={i} className="wave-bar" />)}</div>}
             <span className={`tag ${job.overall_status === 'complete' ? 'teal' : job.overall_status === 'failed' ? 'red' : 'accent'}`}>
               {job.overall_status.toUpperCase()}
             </span>
@@ -74,6 +76,7 @@ export default function JobStatus() {
           {STAGES.map(s => (
             <StagePill
               key={s.key}
+              stageKey={s.key}
               status={job[`${s.key}_status`] || 'pending'}
               label={s.label}
             />

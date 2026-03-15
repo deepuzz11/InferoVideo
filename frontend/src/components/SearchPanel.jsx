@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useStore } from '../store'
 import { searchJob } from '../services/api'
 import { useFormatTime } from '../hooks/useJobPoller'
+import Loader from './Loader'
 
 export default function SearchPanel({ onSeek }) {
   const job = useStore(s => s.job)
@@ -60,7 +61,7 @@ export default function SearchPanel({ onSeek }) {
           disabled={!canSearch || !query.trim() || isSearching}
         >
           {isSearching
-            ? <><span className="spinner" style={{ width: 13, height: 13 }} /> Searching</>
+            ? <><Loader stage="search" status="running" /> Searching…</>
             : 'Search'
           }
         </button>
@@ -95,8 +96,8 @@ export default function SearchPanel({ onSeek }) {
       {/* Results */}
       {isSearching && (
         <div className="empty">
-          <div className="dots" style={{ justifyContent: 'center', marginBottom: 8 }}>
-            <div className="dot"/><div className="dot"/><div className="dot"/>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
+            <Loader stage="search" status="running" />
           </div>
           <div style={{ fontSize: 13, color: 'var(--text-2)' }}>Searching transcript…</div>
         </div>

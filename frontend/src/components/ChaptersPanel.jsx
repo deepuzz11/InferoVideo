@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { useStore } from '../store'
 import { getChapters } from '../services/api'
 import { useFormatTime } from '../hooks/useJobPoller'
+import Loader from './Loader'
 
 export default function ChaptersPanel({ onSeek }) {
   const job = useStore(s => s.job)
@@ -20,10 +21,10 @@ export default function ChaptersPanel({ onSeek }) {
   if (job?.segment_status === 'running' || job?.segment_status === 'pending') {
     return (
       <div className="empty">
-        <div className="dots" style={{ justifyContent: 'center', marginBottom: 8 }}>
-          <div className="dot"/><div className="dot"/><div className="dot"/>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
+          <Loader stage="segment" status="running" />
         </div>
-        <div>Segmenting chapters…</div>
+        <div style={{ fontSize: 13, color: 'var(--text-2)' }}>Segmenting chapters…</div>
       </div>
     )
   }

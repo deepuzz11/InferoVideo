@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import asyncio
 import logging
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from backend.app.core.config import get_settings
@@ -20,6 +22,7 @@ logger = logging.getLogger(__name__)
 class PipelineService:
     def __init__(self):
         self.settings = get_settings()
+        self._executor = ThreadPoolExecutor(max_workers=4)
 
     # ------------------------------------------------------------------ #
     # Job management
@@ -159,15 +162,34 @@ class PipelineService:
     # Full pipeline
     # ------------------------------------------------------------------ #
 
-    def run_pipeline(self, job_id: str, url: str):
+    async def run_pipeline(self, job_id: str, url: str):
         """Full pipeline: ingest → transcribe → segment → highlight → summarise."""
         job = self.get_job(job_id)
+        loop = asyncio.get_running_loop()
+
         try:
-            self.run_ingest(job, url)
-            self.run_transcribe(job)
-            self.run_segment(job)
-            self.run_highlight(job)
-            self.run_summarise(job)
+            # Stage 1: Ingest (Sequential)
+            await loop.run_in_executor(self._executor, self.run_ingest, job, url)
+
+            # Stage 2: Transcribe (Sequential, bottleneck for following stages)
+            await loop.run_in_executor(self._executor, self.run_transcribe, job)
+
+            # Stage 3: Parallel processing (Segment, Highlight)
+            # Summarise usually depends on segments for chapter summaries,
+            # so we run it after segments but parallel with highlights.
+
+            async def run_stage_in_executor(stage_func, *args):
+                return await loop.run_in_executor(self._executor, stage_func, *args)
+
+            # Run segment and highlight in parallel
+            segment_task = asyncio.create_task(run_stage_in_executor(self.run_segment, job))
+            highlight_task = asyncio.create_task(run_stage_in_executor(self.run_highlight, job))
+
+            await segment_task  # Wait for segment to finish before starting summary
+            summary_task = asyncio.create_task(run_stage_in_executor(self.run_summarise, job))
+
+            await asyncio.gather(highlight_task, summary_task)
+
             logger.info("Pipeline complete: %s", job_id)
         except Exception as exc:
             logger.error("Pipeline failed for %s: %s", job_id, exc)

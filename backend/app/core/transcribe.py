@@ -16,11 +16,13 @@ class TranscribeError(Exception):
 @lru_cache(maxsize=1)
 def _load_model(model_name: str):
     try:
-        import whisper
+        from faster_whisper import WhisperModel
     except ImportError as exc:
-        raise TranscribeError("openai-whisper is not installed. Run: pip install openai-whisper") from exc
-    logger.info("Loading Whisper '%s' model …", model_name)
-    return whisper.load_model(model_name)
+        raise TranscribeError("faster-whisper is not installed. Run: pip install faster-whisper") from exc
+    logger.info("Loading FasterWhisper '%s' model …", model_name)
+    # Using float16 for speed on GPU, or int8 for CPU efficiency
+    # In a local environment, we'll auto-detect
+    return WhisperModel(model_name, device="auto", compute_type="default")
 
 
 def transcribe_video(video_path: Path, model_name: str = "base") -> list[dict[str, Any]]:
@@ -30,24 +32,23 @@ def transcribe_video(video_path: Path, model_name: str = "base") -> list[dict[st
     model = _load_model(model_name)
     logger.info("Transcribing %s …", video_path.name)
 
-    result = model.transcribe(
+    segments_gen, info = model.transcribe(
         str(video_path),
-        verbose=False,
+        beam_size=5,
         word_timestamps=False,
         condition_on_previous_text=True,
     )
 
-    segments = [
-        {
-            "id": int(seg["id"]),
-            "start": round(float(seg["start"]), 3),
-            "end": round(float(seg["end"]), 3),
-            "text": seg["text"].strip(),
-            "avg_logprob": round(float(seg.get("avg_logprob", 0.0)), 4),
-            "no_speech_prob": round(float(seg.get("no_speech_prob", 0.0)), 4),
-        }
-        for seg in result["segments"]
-    ]
+    segments = []
+    for i, seg in enumerate(segments_gen):
+        segments.append({
+            "id": i,
+            "start": round(float(seg.start), 3),
+            "end": round(float(seg.end), 3),
+            "text": seg.text.strip(),
+            "avg_logprob": round(float(seg.avg_logprob), 4),
+            "no_speech_prob": round(float(seg.no_speech_prob), 4),
+        })
 
     logger.info("Transcription done: %d segments", len(segments))
     return segments

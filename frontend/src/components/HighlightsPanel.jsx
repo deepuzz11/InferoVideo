@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { useStore } from '../store'
 import { getHighlights } from '../services/api'
+import Loader from './Loader'
 
 export default function HighlightsPanel() {
   const job = useStore(s => s.job)
@@ -24,10 +25,10 @@ export default function HighlightsPanel() {
   if (job?.highlight_status === 'running' || job?.highlight_status === 'pending') {
     return (
       <div className="empty">
-        <div className="dots" style={{ justifyContent: 'center', marginBottom: 8 }}>
-          <div className="dot"/><div className="dot"/><div className="dot"/>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
+          <Loader stage="highlight" status="running" />
         </div>
-        <div>Extracting highlights…</div>
+        <div style={{ fontSize: 13, color: 'var(--text-2)' }}>Extracting highlights…</div>
       </div>
     )
   }
