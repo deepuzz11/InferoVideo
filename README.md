@@ -21,19 +21,7 @@
 
 ## Architecture
 
-```
-URL → yt-dlp → [video.mp4]
-             → Whisper  → [transcript.json]
-                        → TF-IDF segmenter → [chapters.json]
-                        → Scorer + ffmpeg  → [highlight clips]
-                        → Summariser       → [summary.json]
-
-FastAPI /api/v1   ←→   React SPA (Vite, port 3000)
-       /data/*         (static file serving for media)
-```
-
-Pipeline runs **asynchronously** via FastAPI `BackgroundTasks`.  
-Poll `GET /api/v1/jobs/{job_id}` for real-time progress (progress_pct 0–100).
+<img width="1024" height="541" alt="infero drawio" src="https://github.com/user-attachments/assets/97fa9015-1d28-4a9c-b87e-7f9d5ea6cd28" />
 
 ---
 
